@@ -1,4 +1,4 @@
-#Cortex-1.0
+# Cortex-1.0
 
 A Discord Bot runs with exclamation Cmds,
 
