@@ -3,6 +3,8 @@ from discord.ext import commands
 import logging
 from dotenv import load_dotenv
 import os
+from utils.logger import log_message
+
 
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
@@ -34,6 +36,15 @@ async def on_message(message):
         await message.channel.send(f"{message.author.mention} - dont use that word")
 
     await bot.process_commands(message)
+
+@bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+    
+    log_message(message)
+    await bot.process_commands(message)
+
 
 # !hello 
 @bot.command()
