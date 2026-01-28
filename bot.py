@@ -4,6 +4,12 @@ import logging
 from dotenv import load_dotenv
 import os
 from utils.logger import log_message
+# import asyncio
+
+
+# async def load_extensions():
+#     await bot.load_extension("commands.roast")
+# asyncio.run(load_extensions())  
 
 
 load_dotenv()
@@ -18,6 +24,20 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 secret_role = "Gamer"
 
+# class Client(commands.Bot):
+
+#     async def ready(self):
+#         print(f'Logged on as {self.user}!')
+
+#         try:
+#             guild = discord.Object(id=serverID)
+#             synced = await self.tree.sync(guild=guild)
+#             print(f'Sync Complete\n{len(synced)} command synced to guild {guild.id}')
+
+#         except Exception as e:  
+#             print(f'Error: {e}')  
+
+
 @bot.event
 async def on_ready():
     print(f"WE are ready to go in, {bot.user.name}")
@@ -26,23 +46,19 @@ async def on_ready():
 async def on_member_join(member):
     await member.send(f"Welcome to the server {member.name}")
 
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return    
-
-    if "shit" in message.content.lower():
-        await message.delete()
-        await message.channel.send(f"{message.author.mention} - dont use that word")
-
-    await bot.process_commands(message)
+FILTER_OUT = ["shit", "fuck"]
 
 @bot.event
 async def on_message(message):
     if message.author.bot:
-        return
+         return
     
-    log_message(message)
+    content = message.content.lower()
+
+    if any(word in content for word in FILTER_OUT):
+        await message.delete()
+        await message.channel.send(f"{message.author.mention} - Don't Use the word")
+        return
     await bot.process_commands(message)
 
 
@@ -89,6 +105,7 @@ async def poll(ctx, *, questoin):
 @commands.has_role(secret_role)
 async def secret(ctx):
     await ctx.send("Welcome to the club!")
+
 
 @secret.error    
 async def secret_error(ctx, error):
