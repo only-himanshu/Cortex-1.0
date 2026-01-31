@@ -4,16 +4,16 @@ import logging
 from dotenv import load_dotenv
 import os
 from utils.logger import log_message
-# import asyncio
-
-
-# async def load_extensions():
-#     await bot.load_extension("commands.roast")
-# asyncio.run(load_extensions())  
+import asyncio
 
 
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
+
+if token is None:
+    raise ValueError("DISCORD_TOKEN not found")
+
+
 
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 intents = discord.Intents.default()
@@ -22,21 +22,12 @@ intents.members = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+# async def load_extensions():
+#     await bot.load_extension("commands.roast")
+
+
+
 secret_role = "Gamer"
-
-# class Client(commands.Bot):
-
-#     async def ready(self):
-#         print(f'Logged on as {self.user}!')
-
-#         try:
-#             guild = discord.Object(id=serverID)
-#             synced = await self.tree.sync(guild=guild)
-#             print(f'Sync Complete\n{len(synced)} command synced to guild {guild.id}')
-
-#         except Exception as e:  
-#             print(f'Error: {e}')  
-
 
 @bot.event
 async def on_ready():
@@ -59,6 +50,9 @@ async def on_message(message):
         await message.delete()
         await message.channel.send(f"{message.author.mention} - Don't Use the word")
         return
+    
+    log_message(message) #log_message intialise
+
     await bot.process_commands(message)
 
 
@@ -112,4 +106,16 @@ async def secret_error(ctx, error):
     if isinstance(error, commands.MissingRole):
         await   ctx.send("You dont have permission to do that!")
 
-bot.run(token, log_handler=handler, log_level=logging.DEBUG)    
+#----------Extension---------
+
+async def load_extensions():
+    await bot.load_extension("commands.roast")
+
+async def main():
+    async with bot:
+        await load_extensions()
+        await bot.start(token)    
+
+# bot.run(token, log_handler=handler, log_level=logging.DEBUG)    
+
+asyncio.run(main())
